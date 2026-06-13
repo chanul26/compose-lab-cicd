@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web-frontend:
+    image: nginx:latest
+    ports:
+      - "80:80"
+
+  database-storage:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword

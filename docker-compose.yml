@@ -1,0 +1,15 @@
+services:
+  web-frontend:
+    image: nginx:latest
+    ports:
+      - "80:80"
+
+  database-storage:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - luvo-db-vault:/var/lib/postgresql
+
+volumes:
+  luvo-db-vault:
