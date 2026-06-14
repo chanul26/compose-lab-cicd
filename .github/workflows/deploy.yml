@@ -1,27 +1,46 @@
-name: Chanul Auto-Deployment Pipeline
+name: Auto-Deployment Pipeline with CI
 
-# 1. The Trigger
 on:
   push:
     branches:
       - main
 
-# 2. The Robot's Instructions
 jobs:
+  # ========================================
+  # STAGE 1: THE CI SCANNER (Testing)
+  # ========================================
+  test-the-code:
+    runs-on: ubuntu-latest
+    steps:
+      # Step A: Download the code into the GitHub temporary server
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      # Step B: Run the automated test
+      - name: Run HTML Validation Test
+        run: |
+          if grep -q "<h1>" frontend/index.html; then
+            echo "Test Passed: Valid H1 tag found."
+            exit 0
+          else
+            echo "Test Failed: Missing H1 tag!"
+            exit 1
+          fi
+
+  # ========================================
+  # STAGE 2: THE CD DEPLOYMENT
+  # ========================================
   deploy-to-aws:
+    needs: test-the-code  # CRITICAL: This locks the deployment behind the test!
     runs-on: ubuntu-latest
     
     steps:
       - name: Securely Login and Update Server
-        # We use a pre-built GitHub Action module designed specifically for SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          # The robot pulls the keys directly from your GitHub Secrets Vault
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-          # This is exactly what the robot types into your AWS terminal!
           script: |
             cd /home/ubuntu/compose-lab/
             git pull origin main
