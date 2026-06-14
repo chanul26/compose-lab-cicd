@@ -3,6 +3,8 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html  # This is the magic fix!
 
   database-storage:
     image: postgres:latest
