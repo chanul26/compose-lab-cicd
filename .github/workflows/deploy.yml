@@ -1,18 +1,28 @@
-name: Chanul CI/CD Test Pipeline
+name: Chanul Auto-Deployment Pipeline
 
-# The Trigger: Wake up on every push
+# 1. The Trigger
 on:
   push:
     branches:
       - main
-      - master
 
-# The Work: What the robot does
+# 2. The Robot's Instructions
 jobs:
-  test-the-robot:
-    # We tell GitHub to rent a free, temporary Ubuntu server to run our script
-    runs-on: ubuntu-latest 
+  deploy-to-aws:
+    runs-on: ubuntu-latest
     
     steps:
-      - name: Print a success message
-        run: echo "Hello Chanul! The CI/CD Pipeline is alive and working perfectly!"
+      - name: Securely Login and Update Server
+        # We use a pre-built GitHub Action module designed specifically for SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          # The robot pulls the keys directly from your GitHub Secrets Vault
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+          # This is exactly what the robot types into your AWS terminal!
+          script: |
+            cd /home/ubuntu/compose-lab/
+            git pull origin main
+            sudo docker compose up -d --build
