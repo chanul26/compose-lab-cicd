@@ -12,11 +12,9 @@ jobs:
   test-the-code:
     runs-on: ubuntu-latest
     steps:
-      # Step A: Download the code into the GitHub temporary server
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      # Step B: Run the automated test
+
       - name: Run HTML Validation Test
         run: |
           if grep -q "<h1>" frontend/index.html; then
@@ -31,9 +29,9 @@ jobs:
   # STAGE 2: THE CD DEPLOYMENT
   # ========================================
   deploy-to-aws:
-    needs: test-the-code  # CRITICAL: This locks the deployment behind the test!
+    needs: test-the-code
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Securely Login and Update Server
         uses: appleboy/ssh-action@v1.0.3
@@ -44,4 +42,4 @@ jobs:
           script: |
             cd /home/ubuntu/compose-lab/
             git pull origin main
-            sudo docker compose up -d --build
+            sudo docker compose up -d --build --remove-orphans
