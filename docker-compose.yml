@@ -5,12 +5,14 @@ services:
       - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    # This is the fix! It forces the proxy to wait.
     depends_on:
       - lamigo-frontend
 
   lamigo-frontend:
     image: nginx:latest
+    # This is the exact fix. It opens the internal door.
+    expose:
+      - "80"
     volumes:
       - ./frontend:/usr/share/nginx/html
 
